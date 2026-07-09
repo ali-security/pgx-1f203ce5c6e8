@@ -1,0 +1,40 @@
+name: Seal Cross-Platform Tests
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  test-windows:
+    name: Test Windows
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        go-version: ["1.23", "1.24"]
+
+    steps:
+      - name: Setup PostgreSQL
+        id: postgres
+        uses: ikalnytskyi/action-setup-postgres@v4
+        with:
+          database: pgx_test
+
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v4
+
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+
+      - name: Initialize test database
+        run: |
+          psql -f testsetup/postgresql_setup.sql pgx_test
+        env:
+          PGSERVICE: ${{ steps.postgres.outputs.service-name }}
+        shell: bash
+
+      - name: Test
+        run: go test -parallel=1 -race ./...
+        env:
+          PGX_TEST_DATABASE: ${{ steps.postgres.outputs.connection-uri }}

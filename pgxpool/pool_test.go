@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"runtime"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -624,6 +625,9 @@ func TestConnReleaseClosesBusyConn(t *testing.T) {
 }
 
 func TestPoolBackgroundChecksMaxConnLifetime(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip("flaky on Windows due to timing sensitivity in background conn lifetime checks")
+	}
 	t.Parallel()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)

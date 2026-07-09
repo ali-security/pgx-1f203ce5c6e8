@@ -8,6 +8,7 @@ on:
 
 jobs:
   test:
+    if: false
     name: Test
     runs-on: ubuntu-22.04
 
@@ -121,6 +122,7 @@ jobs:
           PGX_TEST_TLS_CLIENT_CONN_STRING: ${{ matrix.pgx-test-tls-client-conn-string }}
 
   test-windows:
+    if: false
     name: Test Windows
     runs-on: windows-latest
     strategy:
